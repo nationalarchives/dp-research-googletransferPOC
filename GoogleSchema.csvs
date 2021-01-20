@@ -1,0 +1,22 @@
+version 1.1
+@totalColumns 13
+identifier: uri fileExists unique if($folder/is("folder"),ends("/")) integrityCheck ("includeFolder")
+file_name: length(1,*)
+folder: is("folder") or is("file")
+date_created: xDateTime
+date_last_modified: xDateTime
+checksum_md5: if($folder/is("file"),if($archivist_note/is(""),(checksum(file($identifier),"MD5")), empty)) 
+checksum_sha256: if($folder/is("file"),checksum(file($identifier),"SHA-256"),empty) 
+//closure_type: any("closed_review","retained_until","closed_for","normal_closure_before_foi","retained_under_3.4","temporarily_retained","closed_until","closed_access_reviewed","reclosed_in","open_on_transfer")
+//closure_period: if($closure_type/is("open_on_transfer"),is("0"), range(1,100))
+//closure_start_date: if($closure_type/is("open_on_transfer"),empty,xDateTime)
+//foi_exemption_code: //if($closure_type/is("open_on_transfer"),is("open"),regex("(?:2[34689]|27\([12]\)|30\([12]\)|3[1-4689]|35\(1\)\([abcd]\)|37\(1\)\((?:(?:a|ac|ad|b)\)|a\) old)|40\(2\)|43\(2\)|4[1-4])(?:,\s?(?:2[34689]|27\([12]\)|30\([12]\)|3[1-4689]|35\(1\)\([abcd]\)|37\(1\)\((?:(?:a|ac|ad|b)\)|a\) old)|40\(2\)|4[1-4]))*"))
+//foi_exemption_asserted: if($closure_type/is("open_on_transfer"),empty, xDateTime) if($closure_type/is("closed_for"),not($closure_start_date))
+//title_public: if($title_alternate/notEmpty,any("FALSE","false"),any("true","TRUE"))
+//title_alternate: if($title_public/any("FALSE","false"),notEmpty,empty)
+google_id: @optional
+google_parent_id: @optional
+rights_copyright: is("Crown Copyright")
+legal_status: is("Public Record(s)")
+held_by: is("The National Archives, Kew")
+archivist_note:@optional
