@@ -374,7 +374,7 @@ def downloadFileList(): #using metadata file to recreate file structure of folde
                             pass
             print('Downloading', reader.line_num)
 
-#downloadFileList()
+downloadFileList()
 print('Files Downloaded')
 print('Generating SHA256')
 
