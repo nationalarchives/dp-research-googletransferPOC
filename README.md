@@ -18,7 +18,7 @@ On first run both the scripts googleApiFileList.py and googleDownload.py will as
 
 It retains some fields such as mimeType, which will not be retained in the final CSV, as these are used in the GoogleDownload script.
 
-3. The third script googleDownload, downloads files in their original folder structure. Non-Google formats are downloaded in their original formats. Google formats are downloaded in specified export formats (generally open office). 
+3. The third script googleDownload, downloads files in their original folder structure. Non-Google formats are downloaded in their original formats. Google formats are downloaded in specified export formats (generally open office). Future work will be added to export Google Sheets as both ODS and html, currently just ODS. 
 
 Final metadata changes are then completed, fields which are not needed are removed. Additional SHA256 checksums are generated and validation is achieved using the CSV validator https://github.com/digital-preservation/csv-validator and schemas GoogleSchema.csvs and closure_v6.csvs (currently closure schema validation rules are commented out as closure is not completed in this process).
 
