@@ -55,10 +55,11 @@ except ImportError:
 import csv
 downloadPath = 'Downloaded_Files/'
 schema = "GoogleSchema.csvs"
-closureSchema = "closure_v6.csvs"
+closureSchema = "closure_v12.csvs"
 finalMetadata = 'Downloaded_Files/GoogleTestMetadataFinal.csv'
 metadata = 'GoogleTestMetadata.csv'
 logfile = open("logfile"+datetime.today().strftime('%Y-%m-%d-%H_%M_%S')+".txt", "w+")
+wd = os.getcwd()
 
 import io
 from io import BytesIO
@@ -427,26 +428,26 @@ def tidy_metadata(): #finishes of the rest of actions needed, generates sha256, 
         ['identifier', 'file_name', 'folder', 'date_created', 'date_last_modified', 'checksum_md5', 'checksum_sha256', 'google_id', 'google_parent_id', 'rights_copyright', 'legal_status',
          'held_by','archivist_note']]
     filelist.to_csv(finalMetadata, index=False)
-    closure.to_csv(downloadPath+'closure_v6.csv', index=False)
+    closure.to_csv(downloadPath+'closure_v12.csv', index=False)
 tidy_metadata()
 
 
 
 print('Validating metadata')
-subprocess.run(["csv-validator-cmd-1.1.5/bin/validate.bat", finalMetadata, schema, "-p:file:/=file:/"+downloadPath], shell=True)
+subprocess.run(["csv-validator-cmd-1.2-RC2-application\\csv-validator-cmd-1.2-RC2\\bin\\validate.bat", finalMetadata, schema, "-p:file:/=file:/"+wd+'/'+downloadPath], shell=True)
 print('Validating closure metadata')
-subprocess.run(["csv-validator-cmd-1.1.5/bin/validate.bat", downloadPath+'closure_v6.csv', closureSchema, "-p:file:/=file:/"+downloadPath], shell=True)
+subprocess.run(["csv-validator-cmd-1.2-RC2-application\\csv-validator-cmd-1.2-RC2\\bin\\validate.bat", downloadPath+'closure_v12.csv', closureSchema, "-p:file:/=file:/"+wd+'/'+downloadPath], shell=True)
 print('Generating metadata hash')
 with open(finalMetadata, 'rb') as afile:
     hash = afile.read()
     gethash = hashlib.sha256(hash).hexdigest()
     f = open(finalMetadata+".sha256", "w", newline='\n')
     f.write(gethash+ "  " +finalMetadata+'\n')
-with open(downloadPath+'closure_v6.csv', 'rb') as afile:
+with open(downloadPath+'closure_v12.csv', 'rb') as afile:
     hash = afile.read()
     gethash = hashlib.sha256(hash).hexdigest()
-    f = open(downloadPath+'closure_v6.csv'+".sha256", "w", newline='\n')
-    f.write(gethash+ "  " +downloadPath+'closure_v6.csv'+'\n')
+    f = open(downloadPath+'closure_v12.csv'+".sha256", "w", newline='\n')
+    f.write(gethash+ "  " +downloadPath+'closure_v12.csv'+'\n')
 print('done!')
 
 
