@@ -1,7 +1,7 @@
-version 1.1
+version 1.2
 @totalColumns 13
 identifier: uri fileExists unique if($folder/is("folder"),ends("/")) integrityCheck ("includeFolder")
-file_name: length(1,*)
+file_name: in(uriDecode($identifier))
 folder: is("folder") or is("file")
 date_created: xDateTime
 date_last_modified: xDateTime
