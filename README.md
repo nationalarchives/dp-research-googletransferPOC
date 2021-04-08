@@ -3,7 +3,7 @@ POC scripts to test potential transfer processes for material to TNA stored in G
 
 Scripts are authenticated using Python Quickstart example from Google - https://developers.google.com/drive/v3/web/quickstart/python to set up you will need to follow the authentication steps detailed there and download a json file with the access credentials. This needs to be renamed 'credentials.json' and placed in the same place as these scripts are run.
 
-Python 3 is required to be installed. The Google Client library is required to run the script, this can be installed by running pip install -upgradegoogle-api-python-client google-auth-httplib2 google-auth-oauthlib. Additional libraries will also be required including pandas and numpy.
+Python 3 is required to be installed. The Google Client library is required to run the script, this can be installed by running pip install --upgrade google-api-python-client google-auth-httplib2 google-auth-oauthlib. Additional libraries will also be required including pandas and numpy.
 
 For the download the CSV Validator cmd line is required. This can be downloaded here https://github.com/digital-preservation/csv-validator/releases/tag/1.2-RC2 This should be unpacked in the directory the scripts are run. This will validate the download and metadata.
 
