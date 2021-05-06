@@ -53,10 +53,10 @@ except ImportError:
     flags = None
 
 import csv
-downloadPath = 'Downloaded_Files/'
+downloadPath = 'Downloaded_Files/'+datetime.today().strftime('%Y-%m-%d-%H_%M_%S')+'/'
 schema = "GoogleSchema.csvs"
 closureSchema = "closure_v12.csvs"
-finalMetadata = 'Downloaded_Files/GoogleTestMetadataFinal.csv'
+finalMetadata = downloadPath+'GoogleTestMetadataFinal.csv'
 metadata = 'GoogleTestMetadata.csv'
 logfile = open("logfile"+datetime.today().strftime('%Y-%m-%d-%H_%M_%S')+".txt", "w+")
 wd = os.getcwd()
@@ -189,8 +189,8 @@ def downloadFileList(): #using metadata file to recreate file structure of folde
                             response = requests.get(request, headers=headers)
                             open(downloadPath + filepath, 'wb').write(response.content)
                         except:
-                            print('Issue downloading ' + filepath + ' file has not been downloaded')
-                            print('Issue downloading ' + filepath + ' file has not been downloaded', file=logfile)
+                            print('Issue downloading ' + filepath + ' file has not been downloaded, Google ID: ' + ID)
+                            print('Issue downloading ' + filepath + ' file has not been downloaded, Google ID: ' + ID, file=logfile)
                             pass
             elif mimeType == 'application/vnd.google-apps.spreadsheet':
                 try:
@@ -225,7 +225,8 @@ def downloadFileList(): #using metadata file to recreate file structure of folde
                             response = requests.get(request, headers=headers)
                             open(downloadPath + filepath, 'wb').write(response.content)
                         except:
-                            print('Issue downloading ' + filepath + ' file has not been downloaded')
+                            print('Issue downloading ' + filepath + ' file has not been downloaded, Google ID: ' + ID)
+                            print('Issue downloading ' + filepath + ' file has not been downloaded, Google ID: ' + ID, file=logfile)
                             pass
             elif mimeType == 'application/vnd.google-apps.presentation':
                 try:
@@ -260,8 +261,8 @@ def downloadFileList(): #using metadata file to recreate file structure of folde
                             response = requests.get(request, headers=headers)
                             open(downloadPath + filepath, 'wb').write(response.content)
                         except:
-                            print('Issue downloading '+filepath+' file has not been downloaded')
-                            print('Issue downloading ' + filepath + ' file has not been downloaded', file=logfile)
+                            print('Issue downloading ' + filepath + ' file has not been downloaded, Google ID: ' + ID)
+                            print('Issue downloading ' + filepath + ' file has not been downloaded, Google ID: ' + ID, file=logfile)
                             pass
             elif mimeType == 'application/vnd.google-apps.drawing':
                 try:
@@ -296,8 +297,8 @@ def downloadFileList(): #using metadata file to recreate file structure of folde
                             response = requests.get(request, headers=headers)
                             open(downloadPath + filepath, 'wb').write(response.content)
                         except:
-                            print('Issue downloading ' + filepath + ' file has not been downloaded')
-                            print('Issue downloading ' + filepath + ' file has not been downloaded', file=logfile)
+                            print('Issue downloading ' + filepath + ' file has not been downloaded, Google ID: ' + ID)
+                            print('Issue downloading ' + filepath + ' file has not been downloaded, Google ID: ' + ID, file=logfile)
                             pass
             elif mimeType == 'application/vnd.google-apps.jam':
                 try:
@@ -332,8 +333,8 @@ def downloadFileList(): #using metadata file to recreate file structure of folde
                             response = requests.get(request, headers=headers)
                             open(downloadPath + filepath, 'wb').write(response.content)
                         except:
-                            print('Issue downloading ' + filepath + ' file has not been downloaded')
-                            print('Issue downloading ' + filepath + ' file has not been downloaded', file=logfile)
+                            print('Issue downloading ' + filepath + ' file has not been downloaded, Google ID: ' + ID)
+                            print('Issue downloading ' + filepath + ' file has not been downloaded, Google ID: ' + ID, file=logfile)
                             pass
             else:
                 try:
@@ -369,9 +370,9 @@ def downloadFileList(): #using metadata file to recreate file structure of folde
                                 print
                                 ("Download %d%%." % int(status.progress() * 100))
                         except Exception as e:
-                            print('Issue downloading ' + filepath + ' file has not been downloaded')
+                            print('Issue downloading ' + filepath + ' file has not been downloaded, Google ID: ' + ID)
                             print(e)
-                            print('Issue downloading ' + filepath + ' file has not been downloaded', file=logfile)
+                            print('Issue downloading ' + filepath + ' file has not been downloaded', Google ID: ' + ID, file=logfile)
                             pass
             print('Downloading', reader.line_num)
 
