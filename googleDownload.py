@@ -32,6 +32,8 @@ import httplib2
 
 import os
 
+import shutil
+
 from apiclient import discovery
 
 from oauth2client import client
@@ -53,10 +55,16 @@ except ImportError:
     flags = None
 
 import csv
-downloadPath = 'Downloaded_Files/'+datetime.today().strftime('%Y-%m-%d-%H_%M_%S')+'/'
+series = 'TEST_1'
+batch = 'TEST1Y22HB001'
+downloadArea = 'Downloads/'+datetime.today().strftime('%Y-%m-%d-%H_%M_%S')+'/' + batch + '/' + series + '/'
+downloadPath = '\\\\?\\' + downloadArea.replace('/','\\')
+validatePath = 'Downloads/'+datetime.today().strftime('%Y-%m-%d-%H_%M_%S')+'/' + batch + '/'
 schema = "GoogleSchema.csvs"
-closureSchema = "closure_v12.csvs"
-finalMetadata = downloadPath+'GoogleTestMetadataFinal.csv'
+closureSchema = "closure_v13.csvs"
+closureMetadata = 'closure_v13.csv'
+finalMetadata = 'metadata_GoogleSchema_'+batch+'.csv'
+downloadfinalMetadata = downloadArea+'/'+finalMetadata
 metadata = 'GoogleTestMetadata.csv'
 logfile = open("logfile"+datetime.today().strftime('%Y-%m-%d-%H_%M_%S')+".txt", "w+")
 wd = os.getcwd()
@@ -81,7 +89,7 @@ import requests
 
 SCOPES = 'https://www.googleapis.com/auth/drive.readonly'
 
-CLIENT_SECRET_FILE = 'credentials.json'
+CLIENT_SECRET_FILE = 'credentials2.json'
 
 APPLICATION_NAME = 'Drive API Python Quickstart'
 
@@ -148,9 +156,11 @@ def downloadFileList(): #using metadata file to recreate file structure of folde
         next(f)
         reader = csv.reader(f)
         for row in reader:
-            mimeType = row[19]
-            ID = row[14]
+            mimeType = row[22]
+            ID = row[17]
             filepath = row[0]
+            filepath = filepath.replace("/", "\\")
+            note = row[24]
             if mimeType == 'application/vnd.google-apps.folder':
                 try:
                     os.makedirs(downloadPath + filepath)
@@ -160,32 +170,30 @@ def downloadFileList(): #using metadata file to recreate file structure of folde
             elif mimeType == 'application/vnd.google-apps.document':
                 try:
                     request = service.files().export_media(fileId=ID,
-                                                       mimeType='application/vnd.oasis.opendocument.text')
+                                                       mimeType='application/vnd.openxmlformats-officedocument.wordprocessingml.document')
                     fh = io.FileIO(downloadPath + filepath, 'wb')
                     downloader = MediaIoBaseDownload(fh, request)
                     done = False
                     while done is False:
                         status, done = downloader.next_chunk()
-                        print
-                        ("Download %d%%." % int(status.progress() * 100))
+                        print ("Download %d%%." % int(status.progress() * 100))
                 except:
                     try:
                         OSError
                         directory = os.path.dirname(filepath)
                         os.makedirs(downloadPath + directory)
                         request = service.files().export_media(fileId=ID,
-                                                               mimeType='application/vnd.oasis.opendocument.text')
+                                                               mimeType='application/vnd.openxmlformats-officedocument.wordprocessingml.document')
                         fh = io.FileIO(downloadPath + filepath, 'wb')
                         downloader = MediaIoBaseDownload(fh, request)
                         done = False
                         while done is False:
                             status, done = downloader.next_chunk()
-                            print
-                            ("Download %d%%." % int(status.progress() * 100))
+                            print ("Download %d%%." % int(status.progress() * 100))
                     except:
                         try:
                             headers = {'Authorization': 'Bearer {}'.format(credentials.access_token), 'User-Agent': 'Mozilla/5.0'}
-                            request = "https://docs.google.com/document/d/" + ID + '/export?format=odt'
+                            request = "https://docs.google.com/document/d/" + ID + '/export?format=docx'
                             response = requests.get(request, headers=headers)
                             open(downloadPath + filepath, 'wb').write(response.content)
                         except:
@@ -195,33 +203,31 @@ def downloadFileList(): #using metadata file to recreate file structure of folde
             elif mimeType == 'application/vnd.google-apps.spreadsheet':
                 try:
                     request = service.files().export_media(fileId=ID,
-                                                           mimeType='application/x-vnd.oasis.opendocument.spreadsheet')
+                                                           mimeType='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
                     fh = io.FileIO(downloadPath + filepath, 'wb')
                     downloader = MediaIoBaseDownload(fh, request)
                     done = False
                     while done is False:
                         status, done = downloader.next_chunk()
-                        print
-                        ("Download %d%%." % int(status.progress() * 100))
+                        print("Download %d%%." % int(status.progress() * 100))
                 except:
                     try:
                         OSError
                         directory = os.path.dirname(filepath)
                         os.makedirs(downloadPath + directory)
                         request = service.files().export_media(fileId=ID,
-                                                               mimeType='application/x-vnd.oasis.opendocument.spreadsheet')
+                                                               mimeType='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
                         fh = io.FileIO(downloadPath + filepath, 'wb')
                         downloader = MediaIoBaseDownload(fh, request)
                         done = False
                         while done is False:
                             status, done = downloader.next_chunk()
-                            print
-                            ("Download %d%%." % int(status.progress() * 100))
+                            print("Download %d%%." % int(status.progress() * 100))
                     except:
                         try:
                             headers = {'Authorization': 'Bearer {}'.format(credentials.access_token),
                                            'User-Agent': 'Mozilla/5.0'}
-                            request = "https://docs.google.com/spreadsheets/d/" + ID + '/export?format=ods'
+                            request = "https://docs.google.com/spreadsheets/d/" + ID + '/export?format=xlsx'
                             response = requests.get(request, headers=headers)
                             open(downloadPath + filepath, 'wb').write(response.content)
                         except:
@@ -231,33 +237,31 @@ def downloadFileList(): #using metadata file to recreate file structure of folde
             elif mimeType == 'application/vnd.google-apps.presentation':
                 try:
                     request = service.files().export_media(fileId=ID,
-                                                           mimeType='application/vnd.oasis.opendocument.presentation')
+                                                           mimeType='application/vnd.openxmlformats-officedocument.presentationml.presentation')
                     fh = io.FileIO(downloadPath + filepath, 'wb')
                     downloader = MediaIoBaseDownload(fh, request)
                     done = False
                     while done is False:
                         status, done = downloader.next_chunk()
-                        print
-                        ("Download %d%%." % int(status.progress() * 100))
+                        print("Download %d%%." % int(status.progress() * 100))
                 except:
                     try:
                         OSError
                         directory = os.path.dirname(filepath)
                         os.makedirs(downloadPath + directory)
                         request = service.files().export_media(fileId=ID,
-                                                               mimeType='application/vnd.oasis.opendocument.presentation')
+                                                               mimeType='application/vnd.openxmlformats-officedocument.presentationml.presentation')
                         fh = io.FileIO(downloadPath + filepath, 'wb')
                         downloader = MediaIoBaseDownload(fh, request)
                         done = False
                         while done is False:
                             status, done = downloader.next_chunk()
-                            print
-                            ("Download %d%%." % int(status.progress() * 100))
+                            print("Download %d%%." % int(status.progress() * 100))
                     except:
                         try:
                             headers = {'Authorization': 'Bearer {}'.format(credentials.access_token),
                                        'User-Agent': 'Mozilla/5.0'}
-                            request = "https://docs.google.com/presentation/d/"+ID+'/export/odp'
+                            request = "https://docs.google.com/presentation/d/"+ID+'/export/pptx'
                             response = requests.get(request, headers=headers)
                             open(downloadPath + filepath, 'wb').write(response.content)
                         except:
@@ -273,8 +277,7 @@ def downloadFileList(): #using metadata file to recreate file structure of folde
                     done = False
                     while done is False:
                         status, done = downloader.next_chunk()
-                        print
-                        ("Download %d%%." % int(status.progress() * 100))
+                        print("Download %d%%." % int(status.progress() * 100))
                 except:
                     OSError
                     try:
@@ -287,8 +290,7 @@ def downloadFileList(): #using metadata file to recreate file structure of folde
                         done = False
                         while done is False:
                             status, done = downloader.next_chunk()
-                            print
-                            ("Download %d%%." % int(status.progress() * 100))
+                            print("Download %d%%." % int(status.progress() * 100))
                     except:
                         try:
                             headers = {'Authorization': 'Bearer {}'.format(credentials.access_token),
@@ -309,8 +311,7 @@ def downloadFileList(): #using metadata file to recreate file structure of folde
                     done = False
                     while done is False:
                         status, done = downloader.next_chunk()
-                        print
-                        ("Download %d%%." % int(status.progress() * 100))
+                        print("Download %d%%." % int(status.progress() * 100))
                 except:
                     OSError
                     try:
@@ -323,8 +324,7 @@ def downloadFileList(): #using metadata file to recreate file structure of folde
                         done = False
                         while done is False:
                             status, done = downloader.next_chunk()
-                            print
-                            ("Download %d%%." % int(status.progress() * 100))
+                            print("Download %d%%." % int(status.progress() * 100))
                     except:
                         try:
                             headers = {'Authorization': 'Bearer {}'.format(credentials.access_token),
@@ -336,6 +336,141 @@ def downloadFileList(): #using metadata file to recreate file structure of folde
                             print('Issue downloading ' + filepath + ' file has not been downloaded, Google ID: ' + ID)
                             print('Issue downloading ' + filepath + ' file has not been downloaded, Google ID: ' + ID, file=logfile)
                             pass
+            elif mimeType == 'application/pdf':
+                if note == 'This file was originally a Google Doc format and has been converted to a PDF':
+                    try:
+                        request = service.files().export_media(fileId=ID,
+                                                       mimeType='application/pdf')
+                        fh = io.FileIO(downloadPath + filepath, 'wb')
+                        downloader = MediaIoBaseDownload(fh, request)
+                        done = False
+                        while done is False:
+                            status, done = downloader.next_chunk()
+                            print ("Download %d%%." % int(status.progress() * 100))
+                    except:
+                        try:
+                            OSError
+                            directory = os.path.dirname(filepath)
+                            os.makedirs(downloadPath + directory)
+                            request = service.files().export_media(fileId=ID,
+                                                               mimeType='application/pdf')
+                            fh = io.FileIO(downloadPath + filepath, 'wb')
+                            downloader = MediaIoBaseDownload(fh, request)
+                            done = False
+                            while done is False:
+                                status, done = downloader.next_chunk()
+                                print ("Download %d%%." % int(status.progress() * 100))
+                        except:
+                            try:
+                                headers = {'Authorization': 'Bearer {}'.format(credentials.access_token), 'User-Agent': 'Mozilla/5.0'}
+                                request = "https://docs.google.com/document/d/" + ID + '/export?format=pdf'
+                                response = requests.get(request, headers=headers)
+                                open(downloadPath + filepath, 'wb').write(response.content)
+                            except:
+                                print('Issue downloading ' + filepath + ' file has not been downloaded, Google ID: ' + ID)
+                                print('Issue downloading ' + filepath + ' file has not been downloaded, Google ID: ' + ID, file=logfile)
+                                pass
+                elif note == 'This file was originally a Google Sheets format and has been converted to a PDF':
+                    try:
+                        request = service.files().export_media(fileId=ID,
+                                              mimeType='application/pdf')
+                        fh = io.FileIO(downloadPath + filepath, 'wb')
+                        downloader = MediaIoBaseDownload(fh, request)
+                        done = False
+                        while done is False:
+                            status, done = downloader.next_chunk()
+                            print("Download %d%%." % int(status.progress() * 100))
+                    except:
+                        try:
+                            OSError
+                            directory = os.path.dirname(filepath)
+                            os.makedirs(downloadPath + directory)
+                            request = service.files().export_media(fileId=ID,
+                                                 mimeType='application/pdf')
+                            fh = io.FileIO(downloadPath + filepath, 'wb')
+                            downloader = MediaIoBaseDownload(fh, request)
+                            done = False
+                            while done is False:
+                                status, done = downloader.next_chunk()
+                                print("Download %d%%." % int(status.progress() * 100))
+                        except:
+                            try:
+                                headers = {'Authorization': 'Bearer {}'.format(credentials.access_token), 'User-Agent': 'Mozilla/5.0'}
+                                request = "https://docs.google.com/spreadsheets/d/" + ID + '/export?format=pdf'
+                                response = requests.get(request, headers=headers)
+                                open(downloadPath + filepath, 'wb').write(response.content)
+                            except:
+                                print('Issue downloading ' + filepath + ' file has not been downloaded, Google ID: ' + ID)
+                                print('Issue downloading ' + filepath + ' file has not been downloaded, Google ID: ' + ID, file=logfile)
+                                pass
+                elif note == 'This file was originally a Google Slides format and has been converted to a PDF':
+                    try:
+                        request = service.files().export_media(fileId=ID,
+                                              mimeType='application/pdf')
+                        fh = io.FileIO(downloadPath + filepath, 'wb')
+                        downloader = MediaIoBaseDownload(fh, request)
+                        done = False
+                        while done is False:
+                            status, done = downloader.next_chunk()
+                            print("Download %d%%." % int(status.progress() * 100))
+                    except:
+                        try:
+                            OSError
+                            directory = os.path.dirname(filepath)
+                            os.makedirs(downloadPath + directory)
+                            request = service.files().export_media(fileId=ID,
+                                                 mimeType='application/pdf')
+                            fh = io.FileIO(downloadPath + filepath, 'wb')
+                            downloader = MediaIoBaseDownload(fh, request)
+                            done = False
+                            while done is False:
+                                status, done = downloader.next_chunk()
+                                print("Download %d%%." % int(status.progress() * 100))
+                        except:
+                            try:
+                                headers = {'Authorization': 'Bearer {}'.format(credentials.access_token), 'User-Agent': 'Mozilla/5.0'}
+                                request = "https://docs.google.com/presentation/d/"+ID+'/export/pdf'
+                                response = requests.get(request, headers=headers)
+                                open(downloadPath + filepath, 'wb').write(response.content)
+                            except:
+                                print('Issue downloading ' + filepath + ' file has not been downloaded, Google ID: ' + ID)
+                                print('Issue downloading ' + filepath + ' file has not been downloaded, Google ID: ' + ID, file=logfile)
+                                pass
+                else:
+                    try:
+                        request = service.files().get_media(fileId=ID)
+                        fh = io.FileIO(downloadPath + filepath, 'wb')
+                        downloader = MediaIoBaseDownload(fh, request)
+                        done = False
+                        while done is False:
+                            status, done = downloader.next_chunk()
+                            print("Download %d%%." % int(status.progress() * 100))
+                    except:
+                        OSError
+                        try:
+                            directory = os.path.dirname(filepath)
+                            os.makedirs(downloadPath + directory)
+                            request = service.files().get_media(fileId=ID)
+                            fh = io.FileIO(downloadPath + filepath, 'wb')
+                            downloader = MediaIoBaseDownload(fh, request)
+                            done = False
+                            while done is False:
+                                status, done = downloader.next_chunk()
+                                print("Download %d%%." % int(status.progress() * 100))
+                        except:
+                            try:
+                                request = service.files().get_media(fileId=ID)
+                                fh = io.FileIO(downloadPath + filepath, 'wb')
+                                downloader = MediaIoBaseDownload(fh, request)
+                                done = False
+                                while done is False:
+                                    status, done = downloader.next_chunk()
+                                    print("Download %d%%." % int(status.progress() * 100))
+                            except Exception as e:
+                                print('Issue downloading ' + filepath + ' file has not been downloaded, Google ID: ' + ID)
+                                print(e)
+                                print('Issue downloading ' + filepath + ' file has not been downloaded, Google ID: ' + ID, file=logfile)
+                                pass
             else:
                 try:
                     request = service.files().get_media(fileId=ID)
@@ -344,8 +479,7 @@ def downloadFileList(): #using metadata file to recreate file structure of folde
                     done = False
                     while done is False:
                         status, done = downloader.next_chunk()
-                        print
-                        ("Download %d%%." % int(status.progress() * 100))
+                        print("Download %d%%." % int(status.progress() * 100))
                 except:
                     OSError
                     try:
@@ -357,8 +491,7 @@ def downloadFileList(): #using metadata file to recreate file structure of folde
                         done = False
                         while done is False:
                             status, done = downloader.next_chunk()
-                            print
-                            ("Download %d%%." % int(status.progress() * 100))
+                            print("Download %d%%." % int(status.progress() * 100))
                     except:
                         try:
                             request = service.files().get_media(fileId=ID)
@@ -367,12 +500,11 @@ def downloadFileList(): #using metadata file to recreate file structure of folde
                             done = False
                             while done is False:
                                 status, done = downloader.next_chunk()
-                                print
-                                ("Download %d%%." % int(status.progress() * 100))
+                                print("Download %d%%." % int(status.progress() * 100))
                         except Exception as e:
                             print('Issue downloading ' + filepath + ' file has not been downloaded, Google ID: ' + ID)
                             print(e)
-                            print('Issue downloading ' + filepath + ' file has not been downloaded', Google ID: ' + ID, file=logfile)
+                            print('Issue downloading ' + filepath + ' file has not been downloaded, Google ID: ' + ID, file=logfile)
                             pass
             print('Downloading', reader.line_num)
 
@@ -384,19 +516,28 @@ def encode(identifier): #converts identifier encoding to URI
     identifier = urllib.parse.quote(identifier)
     return identifier
 
+def encode_redacted(original_identifier): #converts identifier encoding to URI
+    original_identifier = urllib.parse.quote(str(original_identifier))
+    return original_identifier
+
+def encode_other_format(other_format_version_identifier): #converts identifier encoding to URI
+    other_format_version_identifier = urllib.parse.quote(str(other_format_version_identifier))
+    return other_format_version_identifier
+
 sha256=[]
 
 
-def tidy_metadata(): #finishes of the rest of actions needed, generates sha256, runs encode to convert identifier to URI, removes unneeded columns, edits identifier filepath to match TNA requirements, splits metadata and closure metadata
+def tidy_metadata(): #finishes of the rest of actions needed, generates sha256, runs encode to convert identifiers to URI, removes unneeded columns, edits identifier filepath to match TNA requirements, splits metadata and closure metadata
     with open(metadata, 'rt', encoding='utf8') as f:
         next(f)
         reader = csv.reader(f)
         for row in reader:
-            folder = row[3]
+            folder = row[4]
             identifier = row[0]
+            identifier2 = identifier.replace('/', '\\')
             if folder == 'file':
-                with open(downloadPath + identifier, 'rb') as afile:
-                    print('reading file',identifier)
+                with open(downloadPath + identifier2, 'rb') as afile:
+                    print('reading file',identifier2)
                     sha256_object = hashlib.sha256()
                     block_size = 65536 * sha256_object.block_size
                     chunk = afile.read(block_size)
@@ -409,8 +550,32 @@ def tidy_metadata(): #finishes of the rest of actions needed, generates sha256, 
                 sha256.append('None')
     filelist = pd.read_csv(metadata, encoding='utf8')
     filelist['identifier'] = filelist.identifier.apply(encode)
-    filelist['identifier'] = 'file:/' + filelist['identifier']
-    closure = filelist[['identifier','folder','closure_type','closure_period','closure_start_date','foi_exemption_code','foi_exemption_asserted','title_public','title_alternate']]
+    filelist['identifier'] = 'file:/' + series + '/' + filelist['identifier']
+    filelist['title_public'] = filelist['title_public'].astype(str)
+    filelist['title_public'] = np.where(filelist['title_public'] == 'True', 'TRUE', filelist['title_public'])
+    filelist['description_public'] = filelist['title_public'].astype(str)
+    filelist['description_public'] = np.where(filelist['description_public'] == 'True', 'TRUE', filelist['description_public'])
+    filelist['original_identifier'] = filelist.original_identifier.apply(encode_redacted)
+    try:
+        filelist['original_identifier'] = np.where(~filelist['original_identifier'].isnull(),'file:/' + series + '/' + filelist['original_identifier'], filelist['original_identifier'])
+    except:
+        pass
+    filelist['original_identifier'] = np.where(filelist['original_identifier'] == 'file:/' + series + '/' + 'nan', '', filelist['original_identifier'])
+    filelist['other_format_version_identifier'] = filelist.other_format_version_identifier.apply(encode_other_format)
+    try:
+        filelist['other_format_version_identifier'] = np.where(~filelist['other_format_version_identifier'].isnull(), 'file:/' + series + '/' + filelist['other_format_version_identifier'], filelist['other_format_version_identifier'])
+    except:
+        pass
+    filelist['other_format_version_identifier'] = np.where(filelist['other_format_version_identifier'] == 'file:/' + series + '/' + 'nan', '', filelist['other_format_version_identifier'])
+    closure = filelist[['identifier','folder','closure_type','closure_period','closure_start_date','foi_exemption_code','foi_exemption_asserted','title_public','title_alternate','description_public','description_alternate']]
+    try:
+        filelist['archivist_note'] = np.where(~filelist['file_name_note'].isnull(), filelist['archivist_note'] + '. ' + filelist['file_name_note'], filelist['archivist_note'])
+    except:
+        pass
+    try:
+        filelist['archivist_note'] = np.where((~filelist['file_name_note'].isnull()) & (filelist['archivist_note'].isnull()), filelist['file_name_note'], filelist['archivist_note'])
+    except:
+        pass
     del filelist['mimeType']
     del filelist['size']
     del filelist['original_file_name']
@@ -422,33 +587,39 @@ def tidy_metadata(): #finishes of the rest of actions needed, generates sha256, 
     del filelist['foi_exemption_asserted']
     del filelist['title_public']
     del filelist['title_alternate']
-    filelist['checksum_sha256'] = sha256
-    filelist['checksum_sha256'] = np.where(filelist.checksum_sha256 == 'None', '', filelist['checksum_sha256'])
+    del filelist['description_public']
+    del filelist['description_alternate']
+    filelist['checksum'] = sha256
+    filelist['checksum'] = np.where(filelist.checksum == 'None', '', filelist['checksum'])
+    filelist['date_archivist_note'] = ''
+    filelist['date_archivist_note'] = np.where(~filelist['archivist_note'].isnull(), datetime.datetime.today().strftime('%d/%m/%Y'),filelist['date_archivist_note'])
 
     filelist = filelist[
-        ['identifier', 'file_name', 'folder', 'date_created', 'date_last_modified', 'checksum_md5', 'checksum_sha256', 'google_id', 'google_parent_id', 'rights_copyright', 'legal_status',
-         'held_by','archivist_note']]
-    filelist.to_csv(finalMetadata, index=False)
-    closure.to_csv(downloadPath+'closure_v12.csv', index=False)
+        ['identifier', 'file_name', 'folder','description', 'date_created', 'date_last_modified', 'checksum_md5', 'checksum', 'google_id', 'google_parent_id', 'rights_copyright', 'legal_status',
+         'held_by','archivist_note','date_archivist_note','original_identifier','other_format_version_identifier']]
+    filelist.to_csv(downloadfinalMetadata, index=False)
+    closure.to_csv(downloadPath+closureMetadata, index=False)
 tidy_metadata()
 
 
 
 print('Validating metadata')
-subprocess.run(["csv-validator-cmd-1.2-RC2-application\\csv-validator-cmd-1.2-RC2\\bin\\validate.bat", finalMetadata, schema, "-p:file:/=file:/"+wd+'/'+downloadPath], shell=True)
+subprocess.run(["csv-validator-cmd-1.2-RC2-application\\csv-validator-cmd-1.2-RC2\\bin\\validate.bat", downloadfinalMetadata, schema, "-p:file:/=file:/"+validatePath], shell=True)
 print('Validating closure metadata')
-subprocess.run(["csv-validator-cmd-1.2-RC2-application\\csv-validator-cmd-1.2-RC2\\bin\\validate.bat", downloadPath+'closure_v12.csv', closureSchema, "-p:file:/=file:/"+wd+'/'+downloadPath], shell=True)
+subprocess.run(["csv-validator-cmd-1.2-RC2-application\\csv-validator-cmd-1.2-RC2\\bin\\validate.bat", downloadArea+closureMetadata, closureSchema, "-p:file:/=file:/"+validatePath], shell=True)
 print('Generating metadata hash')
-with open(finalMetadata, 'rb') as afile:
+with open(downloadfinalMetadata, 'rb') as afile:
     hash = afile.read()
     gethash = hashlib.sha256(hash).hexdigest()
-    f = open(finalMetadata+".sha256", "w", newline='\n')
+    f = open(downloadfinalMetadata+".sha256", "w", newline='\n')
     f.write(gethash+ "  " +finalMetadata+'\n')
-with open(downloadPath+'closure_v12.csv', 'rb') as afile:
+with open(downloadPath+closureMetadata, 'rb') as afile:
     hash = afile.read()
     gethash = hashlib.sha256(hash).hexdigest()
-    f = open(downloadPath+'closure_v12.csv'+".sha256", "w", newline='\n')
-    f.write(gethash+ "  " +downloadPath+'closure_v12.csv'+'\n')
+    f = open(downloadPath+closureSchema+".sha256", "w", newline='\n')
+    f.write(gethash+ "  " +closureMetadata+'\n')
+shutil.copyfile(schema, downloadArea+schema)
+shutil.copyfile(closureSchema, downloadArea+closureSchema)
 print('done!')
 
 
