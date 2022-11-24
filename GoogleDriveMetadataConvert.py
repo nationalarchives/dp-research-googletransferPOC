@@ -14,8 +14,6 @@ filelist['original_file_name'] = filelist['file_name']
 filelist['file_name_note'] = ''
 filelist['archivist_note'] = ''
 filelist[''] = ''
-pdfcopy = ''
-filelist2 = ''
 content = {'identifier': ['content/'], 'file_name': ['content'], 'date_created': [datetime.datetime.now().isoformat()], 'date_last_modified': [datetime.datetime.now().isoformat()], 'folder':['folder']} #ading content folder in as this is the folder which it has been run form so does not get picked up by API
 content = pd.DataFrame(content, columns = ['identifier','file_name','date_created','date_last_modified','folder'])
 
@@ -34,20 +32,6 @@ def get_parents(): #dictionary which takes list of google ID and parent ID, chec
 
 get_parents()
 
-pdfcopy = filelist[filelist['mimeType'] == 'application/vnd.google-apps.document']
-pdfcopy = pd.concat([pdfcopy, filelist[filelist['mimeType'] == 'application/vnd.google-apps.spreadsheet']])
-pdfcopy = pd.concat([pdfcopy, filelist[filelist['mimeType'] == 'application/vnd.google-apps.presentation']])
-
-def add_pdf_version(): #creates a sub dataframe to add a pdf version entry for all Google formats and renames with appropriate extension. This is then merged with the main dataframe
-    pdfcopy['file_name'] = np.where(pdfcopy.mimeType == 'application/vnd.google-apps.document', pdfcopy['file_name'] + '.pdf', pdfcopy['file_name'])
-    pdfcopy['archivist_note'] = np.where(pdfcopy.mimeType == 'application/vnd.google-apps.document', 'This file was originally a Google Doc format and has been converted to a PDF', pdfcopy['archivist_note'])
-    pdfcopy['file_name'] = np.where(pdfcopy.mimeType == 'application/vnd.google-apps.spreadsheet', pdfcopy['file_name'] + '.pdf', pdfcopy['file_name'])
-    pdfcopy['archivist_note'] = np.where(pdfcopy.mimeType == 'application/vnd.google-apps.spreadsheet', 'This file was originally a Google Sheets format and has been converted to a PDF', pdfcopy['archivist_note'])
-    pdfcopy['file_name'] = np.where(pdfcopy.mimeType == 'application/vnd.google-apps.presentation', pdfcopy['file_name'] + '.pdf', pdfcopy['file_name'])
-    pdfcopy['archivist_note'] = np.where(pdfcopy.mimeType == 'application/vnd.google-apps.presentation', 'This file was originally a Google Slides format and has been converted to a PDF', pdfcopy['archivist_note'])
-    pdfcopy['mimeType'] = 'application/pdf'
-add_pdf_version()
-
 def rename_googledocs(): #renames google docs with appropriate new filname for download, always leaves a note to state which format it is converting it to.
     filelist['file_name'] = np.where(filelist.mimeType == 'application/vnd.google-apps.document', filelist['file_name'] + '.docx', filelist['file_name'])
     filelist['archivist_note'] = np.where(filelist.mimeType == 'application/vnd.google-apps.document', 'This file was originally a Google Doc format and has been converted to an Microsoft Office Word file', filelist['archivist_note'])
@@ -61,55 +45,50 @@ def rename_googledocs(): #renames google docs with appropriate new filname for d
     filelist['archivist_note'] = np.where(filelist.mimeType == 'application/vnd.google-apps.jam', 'This file was originally a Google Jamboard format and has been converted to a PDF file', filelist['archivist_note'])
 rename_googledocs()
 
-filelist2 = pd.concat([filelist, pdfcopy], ignore_index=True)
-
 
 def rename_problem_files(): #renames caracters not allowed in file systems with, always leaves a note to say when filename has changed.
-    filelist2['file_name'] = filelist2['file_name'].str.replace("/","_", regex=True)
-    filelist2['file_name'] = filelist2['file_name'].str.replace("\\", "_", regex=True)
-    filelist2['file_name'] = filelist2['file_name'].str.replace(":", "_", regex=True)
-    filelist2['file_name'] = filelist2['file_name'].str.replace("*", "_", regex=True)
-    filelist2['file_name'] = filelist2['file_name'].str.replace("?", "_", regex=True)
-    filelist2['file_name'] = filelist2['file_name'].str.replace('"', '_', regex=True)
-    filelist2['file_name'] = filelist2['file_name'].str.replace(">", "_", regex=True)
-    filelist2['file_name'] = filelist2['file_name'].str.replace("<", "_", regex=True)
-    filelist2['file_name'] = filelist2['file_name'].str.replace("|", "_", regex=True)
+    filelist['file_name'] = filelist['file_name'].str.replace("/","_", regex=True)
+    filelist['file_name'] = filelist['file_name'].str.replace("\\", "_", regex=True)
+    filelist['file_name'] = filelist['file_name'].str.replace(":", "_", regex=True)
+    filelist['file_name'] = filelist['file_name'].str.replace("*", "_", regex=True)
+    filelist['file_name'] = filelist['file_name'].str.replace("?", "_", regex=True)
+    filelist['file_name'] = filelist['file_name'].str.replace('"', '_', regex=True)
+    filelist['file_name'] = filelist['file_name'].str.replace(">", "_", regex=True)
+    filelist['file_name'] = filelist['file_name'].str.replace("<", "_", regex=True)
+    filelist['file_name'] = filelist['file_name'].str.replace("|", "_", regex=True)
 rename_problem_files()
 
 
 def rename_duplicates(): #renames duplicate files with numerical number
-    filelist2.to_csv('pdfcheck.csv', index=False)
-    filelist2['file_name'] = filelist2['file_name'].astype(str)
-    filesplit = pd.DataFrame([os.path.splitext(f) for f in filelist2.file_name],columns=['Name','Ext'])
-    c = filelist2.groupby(["file_name",'google_parent_id']).cumcount()
+    filelist['file_name'] = filelist['file_name'].astype(str)
+    filesplit = pd.DataFrame([os.path.splitext(f) for f in filelist.file_name], columns=['Name', 'Ext'])
+    c = filelist.groupby(["file_name", 'google_parent_id']).cumcount()
     c = c.astype(str)
-    filelist2['file_name'] = filesplit['Name'] + '(' + c + ')' + filesplit['Ext']
-    filelist2['file_name'] = filelist2['file_name'].str.replace("\(0\)","", regex = True)
-    filelist2['file_name_note'] = np.where(filelist2.file_name != filelist2.original_file_name,'This filename has been adjusted from the original: '+filelist2.original_file_name,filelist2['file_name_note'])
-    filelist2['file_name_note'] = np.where((filelist2.file_name == filelist2.original_file_name+'.xlsx') | (filelist2.file_name == filelist2.original_file_name + '.docx') | (filelist2.file_name == filelist2.original_file_name + '.pptx') | (filelist2.file_name == filelist2.original_file_name + '.png') | (filelist2.file_name == filelist2.original_file_name + '.pdf'),'',filelist2['file_name_note'])
+    filelist['file_name'] = filesplit['Name'] + '(' + c + ')' + filesplit['Ext']
+    filelist['file_name'] = filelist['file_name'].str.replace("\(0\)", "",regex = True)
 rename_duplicates()
 
 def rename_folders(): #takes the identifier converts google id to file or folder name, then adds slashes, removes speech marks, creates folder column with folder or fie entries depending on mime type.
 
-    filelist2['identifier'] = filelist2['identifier'].astype(str)
-    mime = filelist2.groupby('mimeType')
-    foldernumbers = filelist2['mimeType'].str.contains('application/vnd.google-apps.folder').sum()
+    filelist['identifier'] = filelist['identifier'].astype(str)
+    mime = filelist.groupby('mimeType')
+    foldernumbers = filelist['mimeType'].str.contains('application/vnd.google-apps.folder').sum()
     if foldernumbers>0:
         folders = mime.get_group('application/vnd.google-apps.folder')
         folder_dict =  dict(zip(folders.google_id, folders.file_name))
 
         for k, v in folder_dict.items():
-            filelist2['identifier'] = filelist2['identifier'].str.replace(k,v)
+            filelist['identifier'] = filelist['identifier'].str.replace(k,v)
 
-    filelist2['identifier'] = filelist2['identifier'].str.lstrip("('").str.replace("'\)",'/', regex=True).str.replace("', '","/", regex=True).str.replace("',\)",'/', regex=True).str.lstrip(')')
-    filelist2['identifier'] = filelist2['identifier'] + filelist2['file_name']
-    filelist2['identifier'] = np.where(filelist2.mimeType == 'application/vnd.google-apps.folder', filelist2['identifier'] + '/', filelist2['identifier'])
-    filelist2['identifier'] = 'content/' + filelist2['identifier']
-    filelist2['folder'] = np.where(filelist2.mimeType == 'application/vnd.google-apps.folder', 'folder', filelist2['folder'])
-    filelist2['folder'] = np.where(filelist2.mimeType != 'application/vnd.google-apps.folder', 'file', filelist2['folder'])
+    filelist['identifier'] = filelist['identifier'].str.lstrip("('").str.replace("'\)", '/', regex=True).str.replace("', '", "/", regex=True).str.replace("',\)", '/', regex=True).str.lstrip(')')
+    filelist['identifier'] = filelist['identifier'] + filelist['file_name']
+    filelist['identifier'] = np.where(filelist.mimeType == 'application/vnd.google-apps.folder', filelist['identifier'] + '/', filelist['identifier'])
+    filelist['identifier'] = 'content/' + filelist['identifier']
+    filelist['folder'] = np.where(filelist.mimeType == 'application/vnd.google-apps.folder', 'folder', filelist['folder'])
+    filelist['folder'] = np.where(filelist.mimeType != 'application/vnd.google-apps.folder', 'file', filelist['folder'])
 
 rename_folders()
-content = pd.concat([content, filelist2], sort=True)
+content = pd.concat([content, filelist], sort=True)
 
 def convert_to_tna(): #adds in TNA standard fields, converts date to xdatetime
     del content['index']
@@ -131,10 +110,7 @@ def convert_to_tna(): #adds in TNA standard fields, converts date to xdatetime
     content['date_created'] = pd.to_datetime(content["date_created"])
     content['date_created'] = content.date_created.map(lambda x: datetime.datetime.strftime(x, '%Y-%m-%dT%H:%M:%SZ'))
     content['original_identifier'] = ''
-    content['other_format_version_identifier'] = ''
-    content['other_format_version_identifier'] = np.where(content.archivist_note == 'This file was originally a Google Doc format and has been converted to a PDF', content['identifier'].str.replace(".pdf$",'.docx', regex=True), content['other_format_version_identifier'])
-    content['other_format_version_identifier'] = np.where(content.archivist_note == 'This file was originally a Google Sheets format and has been converted to a PDF', content['identifier'].str.replace(".pdf$",'.xlsx', regex=True), content['other_format_version_identifier'])
-    content['other_format_version_identifier'] = np.where(content.archivist_note == 'This file was originally a Google Slides format and has been converted to a PDF', content['identifier'].str.replace(".pdf$",'.pptx', regex=True), content['other_format_version_identifier'])
+
 convert_to_tna()
 
 content = content.sort_values('identifier') #sorted by identifer (as DROID would do)
@@ -142,6 +118,6 @@ content = content[
         ['identifier', 'file_name','description','original_file_name', 'folder', 'date_created', 'date_last_modified','checksum_md5', 'closure_type',
          'closure_period', 'closure_start_date', 'foi_exemption_code', 'foi_exemption_asserted', 'title_public',
          'title_alternate','description_public','description_alternate', 'google_id', 'google_parent_id', 'rights_copyright', 'legal_status',
-         'held_by', 'mimeType','size', 'archivist_note','file_name_note','original_identifier', 'other_format_version_identifier']]
+         'held_by', 'mimeType','size', 'archivist_note','file_name_note','original_identifier']]
 content.to_csv('GoogleTestMetadata.csv', index=False)
 
