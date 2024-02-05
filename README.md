@@ -33,6 +33,7 @@ Current metadata captured from the Google Drive API by this script is listed bel
 - renames google docs with the extensions of their export formats, adds a 'archivist_note' column which details actions taken
 - renames problem characters /\:\*?"<>| with an _ 
 - renames duplicate file and folder names in the same directory, adds an incremental number
+- It also adds a google format extension before their export format, so that it shows history of format conversion.
 
 It retains some fields such as mimeType, which will not be retained in the final CSV, as these are used in the GoogleDownload script. It will output a file called GoogleTestMetadata.csv
 
