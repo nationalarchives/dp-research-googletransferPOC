@@ -33,15 +33,15 @@ def get_parents(): #dictionary which takes list of google ID and parent ID, chec
 get_parents()
 
 def rename_googledocs(): #renames google docs with appropriate new filname for download, always leaves a note to state which format it is converting it to.
-    filelist['file_name'] = np.where(filelist.mimeType == 'application/vnd.google-apps.document', filelist['file_name'] + '.docx', filelist['file_name'])
+    filelist['file_name'] = np.where(filelist.mimeType == 'application/vnd.google-apps.document', filelist['file_name'] + '.gdoc.docx', filelist['file_name'])
     filelist['archivist_note'] = np.where(filelist.mimeType == 'application/vnd.google-apps.document', 'This file was originally a Google Doc format and has been converted to an Microsoft Office Word file', filelist['archivist_note'])
-    filelist['file_name'] = np.where(filelist.mimeType == 'application/vnd.google-apps.spreadsheet', filelist['file_name'] + '.xlsx', filelist['file_name'])
+    filelist['file_name'] = np.where(filelist.mimeType == 'application/vnd.google-apps.spreadsheet', filelist['file_name'] + '.gsheet.xlsx', filelist['file_name'])
     filelist['archivist_note'] = np.where(filelist.mimeType == 'application/vnd.google-apps.spreadsheet', 'This file was originally a Google Sheets format and has been converted to an Microsoft Excel file', filelist['archivist_note'])
-    filelist['file_name'] = np.where(filelist.mimeType == 'application/vnd.google-apps.presentation', filelist['file_name'] + '.pptx', filelist['file_name'])
+    filelist['file_name'] = np.where(filelist.mimeType == 'application/vnd.google-apps.presentation', filelist['file_name'] + '.gslide.pptx', filelist['file_name'])
     filelist['archivist_note'] = np.where(filelist.mimeType == 'application/vnd.google-apps.presentation', 'This file was originally a Google Slides format and has been converted to an Microsoft Powerpoint file', filelist['archivist_note'])
-    filelist['file_name'] = np.where(filelist.mimeType == 'application/vnd.google-apps.drawing', filelist['file_name'] + '.png', filelist['file_name'])
+    filelist['file_name'] = np.where(filelist.mimeType == 'application/vnd.google-apps.drawing', filelist['file_name'] + '.gdraw.png', filelist['file_name'])
     filelist['archivist_note'] = np.where(filelist.mimeType == 'application/vnd.google-apps.drawing', 'This file was originally a Google Draw file and has been converted to a PNG file', filelist['archivist_note'])
-    filelist['file_name'] = np.where(filelist.mimeType == 'application/vnd.google-apps.jam', filelist['file_name'] + '.pdf', filelist['file_name'])
+    filelist['file_name'] = np.where(filelist.mimeType == 'application/vnd.google-apps.jam', filelist['file_name'] + '.gjamboard.pdf', filelist['file_name'])
     filelist['archivist_note'] = np.where(filelist.mimeType == 'application/vnd.google-apps.jam', 'This file was originally a Google Jamboard format and has been converted to a PDF file', filelist['archivist_note'])
 rename_googledocs()
 
@@ -62,10 +62,25 @@ rename_problem_files()
 def rename_duplicates(): #renames duplicate files with numerical number
     filelist['file_name'] = filelist['file_name'].astype(str)
     filesplit = pd.DataFrame([os.path.splitext(f) for f in filelist.file_name], columns=['Name', 'Ext'])
+    filelist['file_name'] = filelist['file_name'].str.lower()
     c = filelist.groupby(["file_name", 'google_parent_id']).cumcount()
     c = c.astype(str)
     filelist['file_name'] = filesplit['Name'] + '(' + c + ')' + filesplit['Ext']
     filelist['file_name'] = filelist['file_name'].str.replace("\(0\)", "",regex = True)
+    note_filesplit = pd.DataFrame([os.path.splitext(f) for f in filelist.file_name], columns=['Note_Name', 'Note_Ext'])
+    original_filesplit = pd.DataFrame([os.path.splitext(f) for f in filelist.original_file_name], columns=['Original_Name', 'Original_Ext'])
+    filelist['file_name_split'] = note_filesplit['Note_Name']
+    filelist['original_file_name_split'] = original_filesplit['Original_Name']
+    filelist['file_name_split'] = filelist['file_name_split'].str.replace(".gdoc","",regex = True)
+    filelist['file_name_split'] = filelist['file_name_split'].str.replace(".gsheet", "",regex = True)
+    filelist['file_name_split'] = filelist['file_name_split'].str.replace(".gslide", "",regex = True)
+    filelist['file_name_split'] = filelist['file_name_split'].str.replace(".gdraw", "",regex = True)
+    filelist['file_name_split'] = filelist['file_name_split'].str.replace(".gjamboard", "",regex = True)
+    filelist['file_name_note'] = np.where(filelist.file_name_split != filelist.original_file_name_split,'This filename has been adjusted from the original', filelist['file_name_note'])
+    print(filelist['file_name_split'])
+    print(filelist['original_file_name_split'])
+    del filelist['file_name_split']
+    del filelist['original_file_name_split']
 rename_duplicates()
 
 def rename_folders(): #takes the identifier converts google id to file or folder name, then adds slashes, removes speech marks, creates folder column with folder or fie entries depending on mime type.
@@ -120,4 +135,5 @@ content = content[
          'title_alternate','description_public','description_alternate', 'google_id', 'google_parent_id', 'rights_copyright', 'legal_status',
          'held_by', 'mimeType','size', 'archivist_note','file_name_note','original_identifier']]
 content.to_csv('GoogleTestMetadata.csv', index=False)
+
 
