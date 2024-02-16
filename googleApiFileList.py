@@ -193,7 +193,7 @@ def get_file_list(): #runs over each folder generating file list, for files over
             results = service.files().list(
                 q="'" + folder + "' in parents",
 
-                pageSize=1000, fields="nextPageToken, files(name, md5Checksum, mimeType, size, createdTime, modifiedTime, id, parents, trashed)", pageToken=page_token, supportsAllDrives=True, includeItemsFromAllDrives=True).execute()
+                pageSize=1000, fields="nextPageToken, files(name, md5Checksum, mimeType, size, createdTime, modifiedTime, id, parents, trashed, viewersCanCopyContent)", pageToken=page_token, supportsAllDrives=True, includeItemsFromAllDrives=True).execute()
 
             items = results.get('files', [])
             for item in items:
@@ -215,13 +215,16 @@ def get_file_list(): #runs over each folder generating file list, for files over
 
                 trashed = item.get('trashed')
 
+                viewersCanCopyContent = item.get('viewersCanCopyContent')
+              
 
-                file_list.append([name, checksum, mimeType, size, createdTime, modifiedTime, id, parents, trashed])
+
+                file_list.append([name, checksum, mimeType, size, createdTime, modifiedTime, id, parents, trashed, viewersCanCopyContent])
 
             page_token = results.get('nextPageToken', None)
             if page_token is None:
                 break
-    files = pd.DataFrame(file_list,columns=['file_name','checksum_md5','mimeType','size', 'date_created', 'date_last_modified','google_id', 'google_parent_id', 'trashed'])
+    files = pd.DataFrame(file_list,columns=['file_name','checksum_md5','mimeType','size', 'date_created', 'date_last_modified','google_id', 'google_parent_id', 'trashed', 'viewersCanCopyContent'])
     files.drop(files[files['trashed'] == True].index, inplace=True) #removes files which have True listed in trashed, these are files which had been moved to the recycle bin
     foldernumbers = files['mimeType'].str.contains('application/vnd.google-apps.folder').sum()
     filenumbers = (~files['mimeType'].str.contains('application/vnd.google-apps.folder')).sum()
