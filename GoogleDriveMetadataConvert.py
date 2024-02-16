@@ -56,6 +56,7 @@ def rename_problem_files(): #renames caracters not allowed in file systems with,
     filelist['file_name'] = filelist['file_name'].str.replace(">", "_", regex=True)
     filelist['file_name'] = filelist['file_name'].str.replace("<", "_", regex=True)
     filelist['file_name'] = filelist['file_name'].str.replace("|", "_", regex=True)
+    filelist['file_name'] = filelist['file_name'].str.strip()
 rename_problem_files()
 
 
