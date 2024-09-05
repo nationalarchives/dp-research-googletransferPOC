@@ -126,6 +126,7 @@ def convert_to_tna(): #adds in TNA standard fields, converts date to xdatetime
     content['date_created'] = pd.to_datetime(content["date_created"])
     content['date_created'] = content.date_created.map(lambda x: datetime.datetime.strftime(x, '%Y-%m-%dT%H:%M:%SZ'))
     content['original_identifier'] = ''
+    content['other_format_version_identifier'] = ''
 
 convert_to_tna()
 
@@ -134,7 +135,7 @@ content = content[
         ['identifier', 'file_name','description','original_file_name', 'folder', 'date_created', 'date_last_modified','checksum_md5', 'closure_type',
          'closure_period', 'closure_start_date', 'foi_exemption_code', 'foi_exemption_asserted', 'title_public',
          'title_alternate','description_public','description_alternate', 'google_id', 'google_parent_id', 'rights_copyright', 'legal_status',
-         'held_by', 'mimeType','size', 'archivist_note','file_name_note','original_identifier']]
+         'held_by', 'mimeType','size', 'archivist_note','file_name_note','original_identifier','other_format_version_identifier']]
 content.to_csv('GoogleTestMetadata.csv', index=False)
 
 
