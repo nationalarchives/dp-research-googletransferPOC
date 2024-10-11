@@ -43,4 +43,8 @@ It retains some fields such as mimeType, which will not be retained in the final
  
 It will download the files in their original folder structure. Non-Google formats are downloaded in their original formats. Google formats are downloaded in specified export formats (generally microsoft office as well as a PDF version).
 
+Check log file (in same folder as script) to see if any files failed to download. It should be empty.
+
+If the script identifies any files have not downloaded these can be downloaded manually (should not really happen and if it occurs in large amounts script should be rerun as likely due to losing network connection at some point).
+
 Final metadata changes are then completed, fields which are not needed are removed. The final metadata will output in the Downloaded_Files/ folder named GoogleTestMetadataFinal.csv. Additional SHA256 checksums are generated and validation is achieved using the CSV validator https://github.com/digital-preservation/csv-validator and schemas GoogleSchema.csvs and closure_v12.csvs (currently closure schema validation rules are commented out as closure is not completed in this process). This will validate metadata along with MD5 and SHA256 checksums. These schemas need to be in the directory the script is run from.
