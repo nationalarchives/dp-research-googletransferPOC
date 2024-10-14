@@ -52,8 +52,6 @@ except ImportError:
 
 import pandas as pd
 
-import json
-
 # If modifying these scopes, delete your previously saved credentials
 
 # at ~/.credentials/drive-python-quickstart.json
