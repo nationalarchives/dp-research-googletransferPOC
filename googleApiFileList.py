@@ -52,7 +52,7 @@ except ImportError:
 
 import pandas as pd
 
-
+import json
 
 # If modifying these scopes, delete your previously saved credentials
 
@@ -64,7 +64,7 @@ CLIENT_SECRET_FILE = 'credentials.json'
 
 APPLICATION_NAME = 'Drive API Python Quickstart'
 
-folder_id = 'ADD_GOOGLE_ID_HERE' #Set to id of the parent folder you want to list (should be content folder)
+folder_id = '1EYPNNc2yU4DpjKF5_1OKL6WcCLS6b8i6' #Set to id of the parent folder you want to list (should be content folder)
 folder_list = []
 all_folders = []
 file_list = []
@@ -193,7 +193,7 @@ def get_file_list(): #runs over each folder generating file list, for files over
             results = service.files().list(
                 q="'" + folder + "' in parents",
 
-                pageSize=1000, fields="nextPageToken, files(name, md5Checksum, mimeType, size, createdTime, modifiedTime, id, parents, trashed, viewersCanCopyContent)", pageToken=page_token, supportsAllDrives=True, includeItemsFromAllDrives=True).execute()
+                pageSize=1000, fields="nextPageToken, files(name, md5Checksum, mimeType, size, createdTime, modifiedTime, id, parents, trashed, copyRequiresWriterPermission, shortcutDetails)", pageToken=page_token, supportsAllDrives=True, includeItemsFromAllDrives=True).execute()
 
             items = results.get('files', [])
             for item in items:
@@ -215,16 +215,29 @@ def get_file_list(): #runs over each folder generating file list, for files over
 
                 trashed = item.get('trashed')
 
-                viewersCanCopyContent = item.get('viewersCanCopyContent')
-              
+                copyRequiresWriterPermission = item.get('copyRequiresWriterPermission')
 
+                ShortcutDetails = item.get('shortcutDetails')
 
-                file_list.append([name, checksum, mimeType, size, createdTime, modifiedTime, id, parents, trashed, viewersCanCopyContent])
+                if ShortcutDetails != None:
+                        ShortcutID = ShortcutDetails['targetId']
+
+                        ShortcutMimeType = ShortcutDetails['targetMimeType']
+
+                        Results = service.files().get(fileId=ShortcutID,
+                                                     fields = "copyRequiresWriterPermission", supportsAllDrives=True).execute()
+                        ShortcutCopyRequiresWritersPermissions = Results['copyRequiresWriterPermission']
+
+                else:
+                        ShortcutID = None
+                        ShortcutMimeType = None
+                        ShortcutCopyRequiresWritersPermissions = None
+                file_list.append([name, checksum, mimeType, size, createdTime, modifiedTime, id, parents, trashed, copyRequiresWriterPermission, ShortcutID, ShortcutMimeType, ShortcutCopyRequiresWritersPermissions])
 
             page_token = results.get('nextPageToken', None)
             if page_token is None:
                 break
-    files = pd.DataFrame(file_list,columns=['file_name','checksum_md5','mimeType','size', 'date_created', 'date_last_modified','google_id', 'google_parent_id', 'trashed', 'viewersCanCopyContent'])
+    files = pd.DataFrame(file_list,columns=['file_name','checksum_md5','mimeType','size', 'date_created', 'date_last_modified','google_id', 'google_parent_id', 'trashed', 'copyRequiresWriterPermission', 'ShortcutID', 'ShortcutMimeType', 'ShortcutCopyRequiresWritersPermissions'])
     files.drop(files[files['trashed'] == True].index, inplace=True) #removes files which have True listed in trashed, these are files which had been moved to the recycle bin
     foldernumbers = files['mimeType'].str.contains('application/vnd.google-apps.folder').sum()
     filenumbers = (~files['mimeType'].str.contains('application/vnd.google-apps.folder')).sum()
