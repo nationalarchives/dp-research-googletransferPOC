@@ -57,9 +57,9 @@ except ImportError:
 import csv
 series = 'TEST_1'
 batch = 'TEST1Y22HB001'
-downloadArea = 'Downloads/'+datetime.today().strftime('%Y-%m-%d-%H_%M_%S')+'/' + batch + '/' + series + '/'
-downloadPath = '\\\\?\\' + downloadArea.replace('/','\\')
 validatePath = 'Downloads/'+datetime.today().strftime('%Y-%m-%d-%H_%M_%S')+'/' + batch + '/'
+downloadArea =  validatePath + series + '/'
+downloadPath = '\\\\?\\' + downloadArea.replace('/','\\')
 schema = "GoogleSchema.csvs"
 closureSchema = "closure_v13.csvs"
 closureMetadata = 'closure_v13.csv'
