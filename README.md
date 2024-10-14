@@ -37,7 +37,7 @@ Current metadata captured from the Google Drive API by this script is listed bel
 
 It retains some fields such as mimeType, which will not be retained in the final CSV, as these are used in the GoogleDownload script. It will output a file called GoogleTestMetadata.csv
 
-3. The third script addpdfversion.py will add a PDF version for each Google format to the metadata, the download can be run with or without this step but no PDF version will be downloaded for Google formats if not.
+3. The third script addpdfversion.py will add a PDF version for each Google format to the metadata, the download can be run with or without this step but no PDF version will be downloaded for Google formats if not. If you would want the PDF versions in a seperate batch running createPDFversionNewBatch.py will achieve this, this would require the final script googleDownload to be run twice.
 
 4. The fourth script is googleDownload.py. It will use the GoogleTestMetadata.csv to identify the files to be downloaded. The download area will default to a folder in the directory the script is run from called 'Downloaded_Files/' this can be edited by changing the downloadPath variable.
  
