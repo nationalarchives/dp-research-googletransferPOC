@@ -5,7 +5,7 @@ import ast
 import datetime
 
 
-filelist = pd.read_csv('GoogleAPIMetadata.csv', converters={'google_parent_id': ast.literal_eval})
+filelist = pd.read_csv('GoogleAPIMetadata.csv', converters={'google_parent_id': ast.literal_eval}, encoding="utf-8")
 filelist = filelist.explode('google_parent_id')
 filelist = filelist.drop_duplicates()
 filelist = filelist.reset_index()
@@ -16,6 +16,12 @@ filelist['archivist_note'] = ''
 filelist[''] = ''
 content = {'identifier': ['content/'], 'file_name': ['content'], 'date_created': [datetime.datetime.now().isoformat()], 'date_last_modified': [datetime.datetime.now().isoformat()], 'folder':['folder']} #ading content folder in as this is the folder which it has been run form so does not get picked up by API
 content = pd.DataFrame(content, columns = ['identifier','file_name','date_created','date_last_modified','folder'])
+
+def replace_shortcuts():
+    filelist['google_id'] = np.where(filelist.ShortcutID.isnull(), filelist['google_id'], filelist['ShortcutID'])
+    filelist['mimeType'] = np.where(filelist.ShortcutID.isnull(), filelist['mimeType'], filelist['ShortcutMimeType'])
+
+replace_shortcuts()
 
 def get_parents(): #dictionary which takes list of google ID and parent ID, checks if parent ID is in list, adds to a parents list if so, then creates the idenrifier row with list of all parent IDs related to google ID
     parentslist = []
