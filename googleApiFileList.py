@@ -222,9 +222,9 @@ def get_file_list(): #runs over each folder generating file list, for files over
 
                         ShortcutMimeType = ShortcutDetails['targetMimeType']
 
-                        Results = service.files().get(fileId=ShortcutID,
+                        Shortcuts = service.files().get(fileId=ShortcutID,
                                                      fields = "copyRequiresWriterPermission", supportsAllDrives=True).execute()
-                        ShortcutCopyRequiresWritersPermissions = Results['copyRequiresWriterPermission']
+                        ShortcutCopyRequiresWritersPermissions = Shorcuts['copyRequiresWriterPermission']
 
                 else:
                         ShortcutID = None
