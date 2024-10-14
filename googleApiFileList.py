@@ -64,7 +64,7 @@ CLIENT_SECRET_FILE = 'credentials.json'
 
 APPLICATION_NAME = 'Drive API Python Quickstart'
 
-folder_id = '1EYPNNc2yU4DpjKF5_1OKL6WcCLS6b8i6' #Set to id of the parent folder you want to list (should be content folder)
+folder_id = 'ADD GOOGLE FOLDER ID' #Set to id of the parent folder you want to list (should be content folder)
 folder_list = []
 all_folders = []
 file_list = []
