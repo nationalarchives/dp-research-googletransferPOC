@@ -7,8 +7,13 @@ filelist['other_format_version_identifier'] = ''
 pdfcopy = filelist[filelist['mimeType'] == 'application/vnd.google-apps.document']
 pdfcopy = pd.concat([pdfcopy, filelist[filelist['mimeType'] == 'application/vnd.google-apps.spreadsheet']])
 pdfcopy = pd.concat([pdfcopy, filelist[filelist['mimeType'] == 'application/vnd.google-apps.presentation']])
-content = {'identifier': ['content/'], 'file_name': ['content'], 'date_created': [datetime.datetime.now().isoformat()], 'date_last_modified': [datetime.datetime.now().isoformat()], 'folder':['folder']} #ading content folder in as this is the folder which it has been run form so does not get picked up by API
-content = pd.DataFrame(content, columns = ['identifier','file_name','date_created','date_last_modified','folder'])
+content = {'identifier': ['content/'], 'file_name': ['content'], 'date_created': [datetime.datetime.now().isoformat()], 'date_last_modified': [datetime.datetime.now().isoformat()], 'folder':['folder'], 'rights_copyright':['Crown Copyright'], 'legal_status':['Public Record(s)'],'held_by':['The National Archives, Kew']} #ading content folder in as this is the folder which it has been run form so does not get picked up by API
+content = pd.DataFrame(content, columns = ['identifier','file_name','date_created','date_last_modified','folder','rights_copyright','legal_status','held_by'])
+content['date_last_modified'] = pd.to_datetime(content["date_last_modified"])
+content['date_last_modified'] = content.date_last_modified.map(
+    lambda x: datetime.datetime.strftime(x, '%Y-%m-%dT%H:%M:%SZ'))
+content['date_created'] = pd.to_datetime(content["date_created"])
+content['date_created'] = content.date_created.map(lambda x: datetime.datetime.strftime(x, '%Y-%m-%dT%H:%M:%SZ'))
 
 
 def add_pdf_version(): #creates a sub dataframe to add a pdf version entry for all Google formats and renames with appropriate extension.
