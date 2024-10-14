@@ -5,7 +5,7 @@ import ast
 import datetime
 
 
-filelist = pd.read_csv('GoogleAPIMetadata.csv', converters={'google_parent_id': ast.literal_eval})
+filelist = pd.read_csv('GoogleAPIMetadata.csv', converters={'google_parent_id': ast.literal_eval}, encoding="utf-8")
 filelist = filelist.explode('google_parent_id')
 filelist = filelist.drop_duplicates()
 filelist = filelist.reset_index()
