@@ -71,5 +71,5 @@ content = content[
          'title_alternate', 'description_public', 'description_alternate', 'google_id', 'google_parent_id',
          'rights_copyright', 'legal_status',
          'held_by', 'mimeType', 'size', 'archivist_note', 'file_name_note', 'original_identifier',
-         'other_format_version_identifier']]
+         'other_format_version_identifier','standardDownloadLink','PDFDownloadLink']]
 content.to_csv('GoogleTestMetadataPDF.csv', index=False)
