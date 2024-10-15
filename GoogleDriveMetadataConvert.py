@@ -20,6 +20,8 @@ content = pd.DataFrame(content, columns = ['identifier','file_name','date_create
 def replace_shortcuts():
     filelist['google_id'] = np.where(filelist.ShortcutID.isnull(), filelist['google_id'], filelist['ShortcutID'])
     filelist['mimeType'] = np.where(filelist.ShortcutID.isnull(), filelist['mimeType'], filelist['ShortcutMimeType'])
+    filelist['date_created'] = np.where(filelist.ShortcutID.isnull(), filelist['date_created'], filelist['shortcutCreatedTime'])
+    filelist['date_last_modified'] = np.where(filelist.ShortcutID.isnull(), filelist['date_last_modified'], filelist['shortcutModifiedTime'])
 
 replace_shortcuts()
 
@@ -38,7 +40,7 @@ def get_parents(): #dictionary which takes list of google ID and parent ID, chec
 
 get_parents()
 
-def rename_googledocs(): #renames google docs with appropriate new filname for download, always leaves a note to state which format it is converting it to.
+def rename_googledocs(): #renames google docs with appropriate new filename for download, always leaves a note to state which format it is converting it to.
     filelist['file_name'] = np.where(filelist.mimeType == 'application/vnd.google-apps.document', filelist['file_name'] + '.gdoc.docx', filelist['file_name'])
     filelist['archivist_note'] = np.where(filelist.mimeType == 'application/vnd.google-apps.document', 'This file was originally a Google Doc format and has been converted to an Microsoft Office Word file', filelist['archivist_note'])
     filelist['file_name'] = np.where(filelist.mimeType == 'application/vnd.google-apps.spreadsheet', filelist['file_name'] + '.gsheet.xlsx', filelist['file_name'])
@@ -50,7 +52,6 @@ def rename_googledocs(): #renames google docs with appropriate new filname for d
     filelist['file_name'] = np.where(filelist.mimeType == 'application/vnd.google-apps.jam', filelist['file_name'] + '.gjamboard.pdf', filelist['file_name'])
     filelist['archivist_note'] = np.where(filelist.mimeType == 'application/vnd.google-apps.jam', 'This file was originally a Google Jamboard format and has been converted to a PDF file', filelist['archivist_note'])
 rename_googledocs()
-
 
 def rename_problem_files(): #renames caracters not allowed in file systems with, always leaves a note to say when filename has changed.
     filelist['file_name'] = filelist['file_name'].str.replace("/","_", regex=True)
