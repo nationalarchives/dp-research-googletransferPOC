@@ -142,7 +142,5 @@ content = content[
         ['identifier', 'file_name','description','original_file_name', 'folder', 'date_created', 'date_last_modified','checksum_md5', 'closure_type',
          'closure_period', 'closure_start_date', 'foi_exemption_code', 'foi_exemption_asserted', 'title_public',
          'title_alternate','description_public','description_alternate', 'google_id', 'google_parent_id', 'rights_copyright', 'legal_status',
-         'held_by', 'mimeType','size', 'archivist_note','file_name_note','original_identifier','other_format_version_identifier']]
+         'held_by', 'mimeType','size', 'archivist_note','file_name_note','original_identifier','other_format_version_identifier','standardDownloadLink','PDFDownloadLink']]
 content.to_csv('GoogleTestMetadata.csv', index=False)
-
-
