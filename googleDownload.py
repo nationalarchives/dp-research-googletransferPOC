@@ -57,8 +57,8 @@ except ImportError:
 import csv
 series = 'TEST_1'
 batch = 'TEST1Y22HB001'
-validatePath = 'Downloads/'+datetime.today().strftime('%Y-%m-%d-%H_%M_%S')+'/' + batch + '/'
-downloadArea =  validatePath + series + '/'
+validatePath = 'E:/Downloads/'+datetime.today().strftime('%Y-%m-%d-%H_%M_%S')+'/' + batch + '/'
+downloadArea = validatePath + series + '/'
 downloadPath = '\\\\?\\' + downloadArea.replace('/','\\')
 schema = "GoogleSchema.csvs"
 closureSchema = "closure_v13.csvs"
@@ -89,7 +89,7 @@ import requests
 
 SCOPES = 'https://www.googleapis.com/auth/drive.readonly'
 
-CLIENT_SECRET_FILE = 'credentials2.json'
+CLIENT_SECRET_FILE = 'credentials.json'
 
 APPLICATION_NAME = 'Drive API Python Quickstart'
 
@@ -113,7 +113,7 @@ def get_credentials():
 
     home_dir = os.path.expanduser('~')
 
-    credential_dir = os.path.join(home_dir, '.credentials2')
+    credential_dir = os.path.join(home_dir, '.credentials3')
 
     if not os.path.exists(credential_dir):
         os.makedirs(credential_dir)
@@ -161,6 +161,8 @@ def downloadFileList(): #using metadata file to recreate file structure of folde
             filepath = row[0]
             filepath = filepath.replace("/", "\\")
             note = row[24]
+            standardDownloadLink = row[28]
+            PDFDownloadLink = row[29]
             if mimeType == 'application/vnd.google-apps.folder':
                 try:
                     os.makedirs(downloadPath + filepath)
@@ -193,7 +195,7 @@ def downloadFileList(): #using metadata file to recreate file structure of folde
                     except:
                         try:
                             headers = {'Authorization': 'Bearer {}'.format(credentials.access_token), 'User-Agent': 'Mozilla/5.0'}
-                            request = "https://docs.google.com/document/d/" + ID + '/export?format=docx'
+                            request = standardDownloadLink
                             response = requests.get(request, headers=headers)
                             open(downloadPath + filepath, 'wb').write(response.content)
                         except:
@@ -227,7 +229,7 @@ def downloadFileList(): #using metadata file to recreate file structure of folde
                         try:
                             headers = {'Authorization': 'Bearer {}'.format(credentials.access_token),
                                            'User-Agent': 'Mozilla/5.0'}
-                            request = "https://docs.google.com/spreadsheets/d/" + ID + '/export?format=xlsx'
+                            request = standardDownloadLink
                             response = requests.get(request, headers=headers)
                             open(downloadPath + filepath, 'wb').write(response.content)
                         except:
@@ -261,7 +263,7 @@ def downloadFileList(): #using metadata file to recreate file structure of folde
                         try:
                             headers = {'Authorization': 'Bearer {}'.format(credentials.access_token),
                                        'User-Agent': 'Mozilla/5.0'}
-                            request = "https://docs.google.com/presentation/d/"+ID+'/export/pptx'
+                            request = standardDownloadLink
                             response = requests.get(request, headers=headers)
                             open(downloadPath + filepath, 'wb').write(response.content)
                         except:
@@ -295,7 +297,7 @@ def downloadFileList(): #using metadata file to recreate file structure of folde
                         try:
                             headers = {'Authorization': 'Bearer {}'.format(credentials.access_token),
                                            'User-Agent': 'Mozilla/5.0'}
-                            request = "https://docs.google.com/drawings/d/" + ID + '/export/png'
+                            request = standardDownloadLink
                             response = requests.get(request, headers=headers)
                             open(downloadPath + filepath, 'wb').write(response.content)
                         except:
@@ -329,7 +331,7 @@ def downloadFileList(): #using metadata file to recreate file structure of folde
                         try:
                             headers = {'Authorization': 'Bearer {}'.format(credentials.access_token),
                                        'User-Agent': 'Mozilla/5.0'}
-                            request = "https://jamboard.google.com/d/" + ID + '/export?format=pdf'
+                            request = standardDownloadLink
                             response = requests.get(request, headers=headers)
                             open(downloadPath + filepath, 'wb').write(response.content)
                         except:
@@ -363,7 +365,7 @@ def downloadFileList(): #using metadata file to recreate file structure of folde
                         except:
                             try:
                                 headers = {'Authorization': 'Bearer {}'.format(credentials.access_token), 'User-Agent': 'Mozilla/5.0'}
-                                request = "https://docs.google.com/document/d/" + ID + '/export?format=pdf'
+                                request = PDFDownloadLink
                                 response = requests.get(request, headers=headers)
                                 open(downloadPath + filepath, 'wb').write(response.content)
                             except:
@@ -396,7 +398,7 @@ def downloadFileList(): #using metadata file to recreate file structure of folde
                         except:
                             try:
                                 headers = {'Authorization': 'Bearer {}'.format(credentials.access_token), 'User-Agent': 'Mozilla/5.0'}
-                                request = "https://docs.google.com/spreadsheets/d/" + ID + '/export?format=pdf'
+                                request = PDFDownloadLink
                                 response = requests.get(request, headers=headers)
                                 open(downloadPath + filepath, 'wb').write(response.content)
                             except:
@@ -429,7 +431,7 @@ def downloadFileList(): #using metadata file to recreate file structure of folde
                         except:
                             try:
                                 headers = {'Authorization': 'Bearer {}'.format(credentials.access_token), 'User-Agent': 'Mozilla/5.0'}
-                                request = "https://docs.google.com/presentation/d/"+ID+'/export/pdf'
+                                request = PDFDownloadLink
                                 response = requests.get(request, headers=headers)
                                 open(downloadPath + filepath, 'wb').write(response.content)
                             except:
@@ -604,9 +606,9 @@ tidy_metadata()
 
 
 print('Validating metadata')
-subprocess.run(["csv-validator-cmd-1.2-RC2-application\\csv-validator-cmd-1.2-RC2\\bin\\validate.bat", downloadfinalMetadata, schema, "-p:file:/=file:/"+validatePath], shell=True)
+subprocess.run(["csv-validator-distribution-1.3.0-bin\\csv-validator-cmd.bat", downloadfinalMetadata, schema, "-p:file:/=file:/"+validatePath], shell=True)
 print('Validating closure metadata')
-subprocess.run(["csv-validator-cmd-1.2-RC2-application\\csv-validator-cmd-1.2-RC2\\bin\\validate.bat", downloadArea+closureMetadata, closureSchema, "-p:file:/=file:/"+validatePath], shell=True)
+subprocess.run(["csv-validator-distribution-1.3.0-bin\\csv-validator-cmd.bat", downloadArea+closureMetadata, closureSchema, "-p:file:/=file:/"+validatePath], shell=True)
 print('Generating metadata hash')
 with open(downloadfinalMetadata, 'rb') as afile:
     hash = afile.read()
@@ -621,25 +623,3 @@ with open(downloadPath+closureMetadata, 'rb') as afile:
 shutil.copyfile(schema, downloadArea+schema)
 shutil.copyfile(closureSchema, downloadArea+closureSchema)
 print('done!')
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
