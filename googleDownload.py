@@ -57,7 +57,7 @@ except ImportError:
 import csv
 series = 'TEST_1'
 batch = 'TEST1Y22HB001'
-validatePath = 'E:/Downloads/'+datetime.today().strftime('%Y-%m-%d-%H_%M_%S')+'/' + batch + '/'
+validatePath = 'Downloads/'+datetime.today().strftime('%Y-%m-%d-%H_%M_%S')+'/' + batch + '/'
 downloadArea = validatePath + series + '/'
 downloadPath = '\\\\?\\' + downloadArea.replace('/','\\')
 schema = "GoogleSchema.csvs"
@@ -113,7 +113,7 @@ def get_credentials():
 
     home_dir = os.path.expanduser('~')
 
-    credential_dir = os.path.join(home_dir, '.credentials3')
+    credential_dir = os.path.join(home_dir, '.credentials')
 
     if not os.path.exists(credential_dir):
         os.makedirs(credential_dir)
