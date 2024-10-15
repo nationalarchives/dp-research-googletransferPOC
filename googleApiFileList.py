@@ -223,19 +223,25 @@ def get_file_list(): #runs over each folder generating file list, for files over
                         ShortcutMimeType = ShortcutDetails['targetMimeType']
 
                         Shortcuts = service.files().get(fileId=ShortcutID,
-                                                     fields = "copyRequiresWriterPermission", supportsAllDrives=True).execute()
-                        ShortcutCopyRequiresWritersPermissions = Shorcuts['copyRequiresWriterPermission']
+                                                     fields = "copyRequiresWriterPermission, createdTime, modifiedTime", supportsAllDrives=True).execute()
+                        ShortcutCopyRequiresWritersPermissions = Shortcuts['copyRequiresWriterPermission']
+                  
+                        ShortcutCreatedTime = Shortcuts['createdTime']
+
+                        ShortcutModifiedTime = Shortcuts['modifiedTime']
 
                 else:
                         ShortcutID = None
                         ShortcutMimeType = None
                         ShortcutCopyRequiresWritersPermissions = None
-                file_list.append([name, checksum, mimeType, size, createdTime, modifiedTime, id, parents, trashed, copyRequiresWriterPermission, ShortcutID, ShortcutMimeType, ShortcutCopyRequiresWritersPermissions])
+                        ShortcutCreatedTime = None
+                        ShortcutModifiedTime = None
+                file_list.append([name, checksum, mimeType, size, createdTime, modifiedTime, id, parents, trashed, copyRequiresWriterPermission, ShortcutID, ShortcutMimeType, ShortcutCreatedTime,ShortcutModifiedTime, ShortcutCopyRequiresWritersPermissions])
 
             page_token = results.get('nextPageToken', None)
             if page_token is None:
                 break
-    files = pd.DataFrame(file_list,columns=['file_name','checksum_md5','mimeType','size', 'date_created', 'date_last_modified','google_id', 'google_parent_id', 'trashed', 'copyRequiresWriterPermission', 'ShortcutID', 'ShortcutMimeType', 'ShortcutCopyRequiresWritersPermissions'])
+    files = pd.DataFrame(file_list,columns=['file_name','checksum_md5','mimeType','size', 'date_created', 'date_last_modified','google_id', 'google_parent_id', 'trashed', 'copyRequiresWriterPermission', 'ShortcutID', 'ShortcutMimeType', 'shortcutCreatedTime', 'shortcutModifiedTime', 'ShortcutCopyRequiresWritersPermissions'])
     files.drop(files[files['trashed'] == True].index, inplace=True) #removes files which have True listed in trashed, these are files which had been moved to the recycle bin
     foldernumbers = files['mimeType'].str.contains('application/vnd.google-apps.folder').sum()
     filenumbers = (~files['mimeType'].str.contains('application/vnd.google-apps.folder')).sum()
