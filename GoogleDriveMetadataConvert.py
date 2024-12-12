@@ -59,6 +59,9 @@ def rename_problem_files(): #renames caracters not allowed in file systems with,
     filelist['file_name'] = filelist['file_name'].str.strip()
 rename_problem_files()
 
+def rename_heif_files():
+    filelist['file_name'] = np.where((filelist.file_name.str.startswith('Ref')) & (filelist.mimeType == 'image/heif'), filelist['file_name'] + '.HEIC', filelist['file_name'])
+rename_heif_files()
 
 def rename_duplicates(): #renames duplicate files with numerical number
     filelist['file_name'] = filelist['file_name'].astype(str)
