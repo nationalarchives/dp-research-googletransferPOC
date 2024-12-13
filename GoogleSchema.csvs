@@ -3,9 +3,10 @@ version 1.2
 identifier: uri fileExists unique if($folder/is("folder"),ends("/")) integrityCheck ("includeFolder")
 file_name: in(uriDecode($identifier))
 folder: is("folder") or is("file")
-description: @optional
+description: if($folder/is("file"), notEmpty regex("^(?!.*\n).*$")) or empty
 date_created: xDateTime
 date_last_modified: xDateTime
+end_date: xDateTime or empty
 checksum_md5: if($folder/is("file"),if($checksum_md5/not(""),(checksum(file($identifier),"MD5")), empty)) 
 checksum: if($folder/is("file"),checksum(file($identifier),"SHA-256"),empty) 
 //closure_type: any("closed_review","retained_until","closed_for","normal_closure_before_foi","retained_under_3.4","temporarily_retained","closed_until","closed_access_reviewed","reclosed_in","open_on_transfer")
@@ -22,7 +23,8 @@ google_parent_id: if($google_id/not(""),notEmpty)
 rights_copyright: is("Crown Copyright")
 legal_status: any("Public Record(s)","Not Public Record(s)","Welsh Public Record(s)")
 held_by: is("The National Archives, Kew")
+note:
 archivist_note: if($archivist_note/notEmpty,starts("This file"),empty)
 date_archivist_note: if($archivist_note/notEmpty,ukDate)
-original_identifier: if($identifier/ends("_R1.pdf") or $identifier/ends("_R2.pdf") or $identifier/ends("_R1.xlsx"),uri fileExists,empty)
+original_identifier: if($identifier/ends("_R.pdf") or $identifier/ends("_R1.pdf") or $identifier/ends("_R2.pdf") or $identifier/ends("_R1.xlsx"),uri fileExists,empty)
 other_format_version_identifier: 
