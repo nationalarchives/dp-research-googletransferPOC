@@ -130,6 +130,7 @@ def convert_to_tna(): #adds in TNA standard fields, converts date to xdatetime
     content['date_created'] = content.date_created.map(lambda x: datetime.datetime.strftime(x, '%Y-%m-%dT%H:%M:%SZ'))
     content['original_identifier'] = ''
     content['other_format_version_identifier'] = ''
+    content['end_date'] = ''
     content['note'] = ''
 
 convert_to_tna()
