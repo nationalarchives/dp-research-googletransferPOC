@@ -621,25 +621,3 @@ with open(downloadPath+closureMetadata, 'rb') as afile:
 shutil.copyfile(schema, downloadArea+schema)
 shutil.copyfile(closureSchema, downloadArea+closureSchema)
 print('done!')
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
