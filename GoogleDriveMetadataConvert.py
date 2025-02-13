@@ -59,6 +59,9 @@ def rename_problem_files(): #renames caracters not allowed in file systems with,
     filelist['file_name'] = filelist['file_name'].str.strip()
 rename_problem_files()
 
+def rename_heif_files():
+    filelist['file_name'] = np.where((filelist.file_name.str.startswith('Ref')) & (filelist.mimeType == 'image/heif'), filelist['file_name'] + '.HEIC', filelist['file_name'])
+rename_heif_files()
 
 def rename_duplicates(): #renames duplicate files with numerical number
     filelist['file_name'] = filelist['file_name'].astype(str)
@@ -127,15 +130,15 @@ def convert_to_tna(): #adds in TNA standard fields, converts date to xdatetime
     content['date_created'] = content.date_created.map(lambda x: datetime.datetime.strftime(x, '%Y-%m-%dT%H:%M:%SZ'))
     content['original_identifier'] = ''
     content['other_format_version_identifier'] = ''
+    content['end_date'] = ''
+    content['note'] = ''
 
 convert_to_tna()
 
 content = content.sort_values('identifier') #sorted by identifer (as DROID would do)
 content = content[
-        ['identifier', 'file_name','description','original_file_name', 'folder', 'date_created', 'date_last_modified','checksum_md5', 'closure_type',
+        ['identifier', 'file_name','description','original_file_name', 'folder', 'date_created', 'date_last_modified','end_date','checksum_md5', 'closure_type',
          'closure_period', 'closure_start_date', 'foi_exemption_code', 'foi_exemption_asserted', 'title_public',
          'title_alternate','description_public','description_alternate', 'google_id', 'google_parent_id', 'rights_copyright', 'legal_status',
-         'held_by', 'mimeType','size', 'archivist_note','file_name_note','original_identifier','other_format_version_identifier']]
+         'held_by', 'mimeType','size','note', 'archivist_note','file_name_note','original_identifier','other_format_version_identifier']]
 content.to_csv('GoogleTestMetadata.csv', index=False)
-
-

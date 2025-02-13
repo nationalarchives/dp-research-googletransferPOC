@@ -595,8 +595,8 @@ def tidy_metadata(): #finishes of the rest of actions needed, generates sha256, 
     filelist['date_archivist_note'] = np.where(~filelist['archivist_note'].isnull(), datetime.datetime.today().strftime('%d/%m/%Y'),filelist['date_archivist_note'])
 
     filelist = filelist[
-        ['identifier', 'file_name', 'folder','description', 'date_created', 'date_last_modified', 'checksum_md5', 'checksum', 'google_id', 'google_parent_id', 'rights_copyright', 'legal_status',
-         'held_by','archivist_note','date_archivist_note','original_identifier','other_format_version_identifier']]
+        ['identifier', 'file_name', 'folder','description', 'date_created','end_date', 'date_last_modified', 'checksum_md5', 'checksum', 'google_id', 'google_parent_id', 'rights_copyright', 'legal_status',
+         'held_by','note','archivist_note','date_archivist_note','original_identifier','other_format_version_identifier']]
     filelist.to_csv(downloadfinalMetadata, index=False)
     closure.to_csv(downloadPath+closureMetadata, index=False)
 tidy_metadata()
@@ -621,25 +621,3 @@ with open(downloadPath+closureMetadata, 'rb') as afile:
 shutil.copyfile(schema, downloadArea+schema)
 shutil.copyfile(closureSchema, downloadArea+closureSchema)
 print('done!')
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

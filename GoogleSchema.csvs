@@ -3,13 +3,14 @@ version 1.2
 identifier: uri fileExists unique if($folder/is("folder"),ends("/")) integrityCheck ("includeFolder")
 file_name: in(uriDecode($identifier))
 folder: is("folder") or is("file")
-description: @optional
+description: if($folder/is("file"), notEmpty regex("^(?!.*\n).*$")) or empty
 date_created: xDateTime
 date_last_modified: xDateTime
+end_date: xDateTime or empty
 checksum_md5: if($folder/is("file"),if($checksum_md5/not(""),(checksum(file($identifier),"MD5")), empty)) 
 checksum: if($folder/is("file"),checksum(file($identifier),"SHA-256"),empty) 
 //closure_type: any("closed_review","retained_until","closed_for","normal_closure_before_foi","retained_under_3.4","temporarily_retained","closed_until","closed_access_reviewed","reclosed_in","open_on_transfer")
-//closure_period: if($closure_type/is("open_on_transfer"),is("0"), range(1,100))
+//closure_period: if($closure_type/is("open_on_transfer"),is("0"), (range(1,115) or regex("^[1-9][0-9]{0,2}(,[1-9][0-9]{0,2})+$"))) 
 //closure_start_date: if($closure_type/is("open_on_transfer"),empty,xDateTime)
 //foi_exemption_code: if($closure_type/is("open_on_transfer"),is("open"),any("23","24","26","27(1)","27(2)","28","29","30(1)","30(2)","31","32","33","34","35(1)(a)","35(1)(b)","35(1)(c)","35(1)(d)","36","37(1)(a)","37(1)(aa)","37(1)(ac)","37(1)(ad)","37(1)(b)","38","39","40(2)","41","42","43","43(1)","43(2)","44"))
 //foi_exemption_asserted: if($closure_type/is("open_on_transfer"),empty, xDateTime) if($closure_type/is("closed_for"),not($closure_start_date))
@@ -19,10 +20,11 @@ checksum: if($folder/is("file"),checksum(file($identifier),"SHA-256"),empty)
 //description_alternate: if($description_public/is("FALSE"),notEmpty,empty)
 google_id: if($folder/is("file"),notEmpty)
 google_parent_id: if($google_id/not(""),notEmpty)
-rights_copyright: is("Crown Copyright")
+rights_copyright: any("Crown Copyright","This record contains third party copyright material", "UK Parliament")
 legal_status: any("Public Record(s)","Not Public Record(s)","Welsh Public Record(s)")
 held_by: is("The National Archives, Kew")
+note:
 archivist_note: if($archivist_note/notEmpty,starts("This file"),empty)
 date_archivist_note: if($archivist_note/notEmpty,ukDate)
-original_identifier: if($identifier/ends("_R1.pdf") or $identifier/ends("_R2.pdf") or $identifier/ends("_R1.xlsx"),uri fileExists,empty)
+original_identifier: if($identifier/regex("^.+_R\.[a-zA-Z]{3,4}$"),uri fileExists,empty)
 other_format_version_identifier: 
