@@ -1,5 +1,5 @@
 version 1.2
-@totalColumns 17
+@totalColumns 19
 identifier: uri fileExists unique if($folder/is("folder"),ends("/")) integrityCheck ("includeFolder")
 file_name: in(uriDecode($identifier))
 folder: is("folder") or is("file")
